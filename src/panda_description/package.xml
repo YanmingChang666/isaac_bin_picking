@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>panda_description</name>
+  <version>3.1.1</version>
+  <description>panda Resources used for MoveIt testing</description>
+
+  <author email="robotmania@hoge.com">robotmania</author>
+  <maintainer email="robotmania@hoge.com">robotmania</maintainer>
+
+  <license>BSD</license>
+  <url type="website">http://moveit.ros.org</url>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <export>
+      <build_type>ament_cmake</build_type>
+  </export>
+</package>

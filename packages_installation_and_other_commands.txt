@@ -1,0 +1,88 @@
+Nvidia Driver version: 580.95.05
+python: 3.10.12
+GPU: RTX 4060Ti (16GB)
+
+
+## Installation of cuda12.1
+# 1. STEP 1 — Remove any old leftover CUDA repos (to avoid conflicts)
+sudo rm -f /etc/apt/sources.list.d/cuda*.list
+sudo rm -f /etc/apt/sources.list.d/nvidia*.list
+sudo apt update
+
+# STEP 2 — Add the official NVIDIA CUDA repository
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
+sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
+
+# Add the repository key:
+sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub
+
+# Add the repo:
+echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /" | sudo tee /etc/apt/sources.list.d/cuda.list
+
+# Update:
+sudo apt update
+
+# STEP 3 — Install CUDA without touching your NVIDIA driver
+sudo apt install cuda-toolkit-12-1
+
+# Add this to ~/.bashrc:
+echo 'export PATH=/usr/local/cuda-12.1/bin:$PATH' >> ~/.bashrc
+echo 'export LD_LIBRARY_PATH=/usr/local/cuda-12.1/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+
+# Reload:
+source ~/.bashrc
+
+
+## Creation of vertual environment
+virtualenv -p /usr/bin/python3 isaac_bin
+source isaac_bin/bin/activate
+pip install isaacsim[all]==4.5.0 --extra-index-url https://pypi.nvidia.com
+pip install typeguard
+pip uninstall -y torch
+pip install torch==2.4.0 torchvision==0.19.0 torchaudio==2.4.0 --index-url https://download.pytorch.org/whl/cu121
+# Ignore "isaacsim-core 4.5.0.0 requires torch>=2.5.1, but you have torch 2.4.0+cu121 which is incompatible."
+
+
+## Preparation of CUB
+curl -LO https://github.com/NVIDIA/cub/archive/1.10.0.tar.gz
+tar xzf 1.10.0.tar.gz
+# add to .bashrc
+export CUB_HOME=$PWD/cub-1.10.0
+
+## Installation of pytorch3D
+pip install setuptools wheel ninja
+pip install --no-build-isolation git+https://github.com/facebookresearch/pytorch3d.git@stable
+
+## Installation of required packages
+pip install trimesh imageio install joblib
+
+## To install nvdiffrast.
+# in the vertual environment
+pip install git+https://github.com/NVlabs/nvdiffrast.git --no-build-isolation
+# Here is the reference.
+https://nvlabs.github.io/nvdiffrast/#install-directly-from-github
+
+# This also works.
+$ pip install diffrp-nvdiffrast
+
+## Installation of required packages.
+pip install pandas open3d transformations ruamel.yaml kornia omegaconf h5py warp-lang==1.0.2
+
+
+## The setup.py file modification.
+# in ~/FoundationPose/bundlesdf/mycuda/setup.py
+# change
+c++14
+# to
+c++17
+# then
+source isaac_bin/bin/activate
+cd FoundationPose/
+bash build_all.sh
+
+##############################################################################################
+## To run Yolov11.
+$ pip install ultralytics
+
+## To convert json to yolo format. 
+labelme2yolo --json_dir /home/robotmania/isaac_bin_picking/training_data_json --val_size 0.25 --test_size 0.0 --output_format polygon

@@ -1,0 +1,1 @@
+Change the lighting from "Stage Lights" to "Dafault" before executing the simulation. Otherwise, Yolo will not be able to detect bolts.
